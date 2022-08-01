@@ -1,11 +1,13 @@
 from datetime import datetime
 from django.utils.timesince import timesince
 from rest_framework import serializers
-from apis.models import Article
+from apis.models import Article, Journalist
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     time_since_publication = serializers.SerializerMethodField()
+    # author = JournalistSerializer()
+    # author = serializers.StringRelatedField()
 
     class Meta:
         model = Article
@@ -24,6 +26,19 @@ class ArticleSerializer(serializers.ModelSerializer):
         if data["title"] == data["description"]:
             raise serializers.ValidationError("Title and Description must be different from one another")
         return data
+
+
+class JournalistSerializer(serializers.ModelSerializer):
+    articles = serializers.HyperlinkedRelatedField(many=True,
+                                                   read_only=True,
+                                                   view_name="article-detail")
+    # articles = ArticleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Journalist
+        fields = "__all__"
+
+
 """
 class ArticleSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
